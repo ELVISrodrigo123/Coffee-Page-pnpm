@@ -4,31 +4,40 @@ import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import { FONTS } from "@/app/theme/base/typography";
 import { lightColors } from "@/app/theme";
 import FeatureCard from "../ui/FeatureCard";
-
-const FEATURES = [
-  {
-    icon: "/image/ServicesCoffee1.png",
-    title: "Supreme Beans",
-    description: "Beans that provides great taste",
-  },
-  {
-    icon: "/image/ServicesCoffee2.png",
-    title: "High Quality",
-    description: "We provide the highest quality",
-  },
-  {
-    icon: "/image/ServicesCoffee3.png",
-    title: "Extraordinary",
-    description: "Coffee like you have never tasted",
-  },
-  {
-    icon: "/image/ServicesCoffee4.png",
-    title: "Affordable Price",
-    description: "Our Coffee prices are easy to afford",
-  },
-];
+import { useEffect, useState } from "react";
+import { getListFeatures } from "@/app/services/next-server/WhySection.service";
+import { FeatureItem } from "@/app/services/WhySection";
 
 export default function WhySection() {
+  const [features, setFeatures] = useState<FeatureItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeatures = async () => {
+      const getResponse = await getListFeatures();
+      const featuresArray = getResponse.data?.resp || [];
+      console.log(featuresArray)
+      setFeatures(featuresArray);
+      setLoading(false);
+    };
+
+    fetchFeatures();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          backgroundColor: lightColors.background,
+          py: 8,
+          textAlign: "center",
+        }}
+      >
+        <Typography>Cargando características...</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -38,7 +47,6 @@ export default function WhySection() {
         py: { xs: 8, md: 10 },
       }}
     >
-      {/* CoffeeLeft — arriba derecha volteado */}
       <Box
         component="img"
         src="/image/CoffeeLeft.png"
@@ -55,7 +63,6 @@ export default function WhySection() {
       />
 
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-        {/* Header */}
         <Box sx={{ textAlign: "center", mb: { xs: 5, md: 7 } }}>
           <Typography
             sx={{
@@ -79,9 +86,8 @@ export default function WhySection() {
           </Typography>
         </Box>
 
-        {/* Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {FEATURES.map((feature) => (
+          {features.map((feature) => (
             <Grid
               key={feature.title}
               size={{ xs: 12, sm: 6, md: 3 }}
@@ -92,7 +98,6 @@ export default function WhySection() {
           ))}
         </Grid>
 
-        {/* Footer CTA */}
         <Box sx={{ textAlign: "center" }}>
           <Typography
             variant="body1"

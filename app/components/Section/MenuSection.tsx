@@ -1,55 +1,54 @@
-"use client";
+// app/components/Section/MenuSection.tsx
+'use client';
 
 import { Box, Container, Grid, Typography } from "@mui/material";
 import { FONTS } from "@/app/theme/base/typography";
-import { lightColors } from "@/app/theme";
+import { lightColors, theme } from "@/app/theme";
 import CoffeeCard from "../ui/CoffeeCard";
-
-const COFFEES = [
-  {
-    image: "/image/CoffeeTeaImg1.jpg",
-    name: "Cappuccino",
-    description: "Coffee 50% | Milk 50%",
-    price: "$8.50",
-  },
-  {
-    image: "/image/CoffeeTeaImg2.jpg",
-    name: "Chai Latte",
-    description: "Coffee 50% | Milk 50%",
-    price: "$8.50",
-  },
-  {
-    image: "/image/CoffeeTeaImg3.jpg",
-    name: "Macchiato",
-    description: "Coffee 50% | Milk 50%",
-    price: "$8.50",
-  },
-  {
-    image: "/image/CoffeeTeaImg4.jpg",
-    name: "Expresso",
-    description: "Coffee 50% | Milk 50%",
-    price: "$8.50",
-  },
-];
+import { useEffect, useState } from "react";
+import { getListMenuCoffee } from "@/app/services/next-server/MenuSection.service";
+import { CoffeeItem } from "@/app/services/MenuSection";
 
 export default function MenuSection() {
+  const [coffees, setCoffees] = useState<CoffeeItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCoffees = async () => {
+      const getResponse = await getListMenuCoffee();
+      const coffeeArray = getResponse.data?.resp || [];
+      console.log(coffeeArray)
+      setCoffees(coffeeArray);
+      setLoading(false);
+    };
+    
+    fetchCoffees();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ backgroundColor: lightColors.background, py: 8, textAlign: "center" }}>
+        <Typography>Cargando nuestro menú...</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
         backgroundColor: lightColors.background,
-        pt: 0, // ← sin margen arriba
+        pt: 0,
         pb: { xs: 2, md: 2 },
       }}
     >
       <Container maxWidth="lg">
-        {/* Header */}
         <Box sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
           <Typography
             sx={{
               fontFamily: FONTS.playfair,
               fontWeight: 800,
               fontSize: { xs: "2rem", md: "2.8rem" },
-              color: "#603809",
+              color: lightColors.primary.main,
               lineHeight: 1.2,
               mb: 2,
             }}
@@ -60,7 +59,7 @@ export default function MenuSection() {
             sx={{
               fontFamily: FONTS.playfair,
               fontSize: { xs: "0.95rem", md: "1rem" },
-              color: "#707070",
+              color: lightColors.text.secondary,
               maxWidth: 600,
               mx: "auto",
             }}
@@ -70,11 +69,10 @@ export default function MenuSection() {
           </Typography>
         </Box>
 
-        {/* Cards */}
         <Grid container spacing={3}>
-          {COFFEES.map((coffee) => (
+          {coffees.map((coffee, index) => (
             <Grid
-              key={coffee.name}
+              key={coffee.name || index}
               sx={{ p: { xs: 2, sm: 0, md: 0 } }}
               size={{ xs: 12, sm: 6, md: 3 }}
             >
